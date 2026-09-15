@@ -1,0 +1,21 @@
+{
+  "name": "snake-leaderboard-backend",
+  "version": "1.0.0",
+  "description": "Leaderboard API for the Snake game three-tier DevSecOps demo",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "echo \"no tests specified\" && exit 0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "mongoose": "^8.5.2"
+  }
+}
