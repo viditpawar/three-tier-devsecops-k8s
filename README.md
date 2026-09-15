@@ -67,14 +67,3 @@ Tear down with:
 ```bash
 kind delete cluster --name three-tier-devsecops
 ```
-
-## Status
-
-- [x] Snake game frontend + leaderboard backend + MongoDB
-- [x] Local orchestration via Docker Compose
-- [x] kind cluster + Kubernetes manifests
-- [ ] Jenkins CI pipeline
-- [ ] SonarQube integration
-- [ ] Trivy vulnerability scanning
-- [ ] ArgoCD GitOps deployment
-- [ ] Prometheus + Grafana monitoring
