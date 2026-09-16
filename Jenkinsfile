@@ -38,6 +38,12 @@ pipeline {
         stage('Ensure kind Cluster') {
             steps {
                 sh '''
+                    if kind get clusters | grep -q "^${CLUSTER_NAME}$" \
+                        && ! docker inspect -f "{{.State.Running}}" ${CLUSTER_NAME}-control-plane 2>/dev/null | grep -q true; then
+                        echo "Found a stale/half-created cluster, removing it"
+                        kind delete cluster --name ${CLUSTER_NAME}
+                    fi
+
                     if ! kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
                         bash kind/setup-cluster.sh
                     fi
