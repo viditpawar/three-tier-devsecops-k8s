@@ -14,9 +14,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: three-tier
+  # Sync is manual, not automated: Jenkins deploys the actual image tags
+  # imperatively (kubectl set image) after each build, since there is no
+  # container registry in this local setup for git to track image digests.
+  # Automated sync would reapply the placeholder ":local" tags in git on
+  # every push to main and clobber Jenkins' live deploy. Trigger a sync
+  # from the ArgoCD UI/CLI when the baseline manifests themselves change
+  # (namespace, services, ingress, configmaps, etc).
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: false
     syncOptions:
       - CreateNamespace=true
