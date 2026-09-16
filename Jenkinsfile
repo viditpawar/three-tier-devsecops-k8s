@@ -7,6 +7,7 @@ pipeline {
         BACKEND_IMAGE  = "snake-backend:${env.BUILD_NUMBER}"
         FRONTEND_IMAGE = "snake-frontend:${env.BUILD_NUMBER}"
         KUBECONFIG     = "${env.WORKSPACE}/kubeconfig"
+        SONAR_HOST_URL = 'http://host.docker.internal:9000'
     }
 
     stages {
@@ -24,6 +25,34 @@ pipeline {
                 dir('application-code/frontend') {
                     sh 'npm ci'
                     sh 'npm run build'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    dir('application-code/backend') {
+                        sh '''
+                            sonar-scanner \
+                                -Dsonar.projectKey=snake-backend \
+                                -Dsonar.sources=src \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.token=${SONAR_TOKEN} \
+                                -Dsonar.qualitygate.wait=true
+                        '''
+                    }
+                    dir('application-code/frontend') {
+                        sh '''
+                            sonar-scanner \
+                                -Dsonar.projectKey=snake-frontend \
+                                -Dsonar.sources=src \
+                                -Dsonar.exclusions=**/dist/**,**/node_modules/** \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.token=${SONAR_TOKEN} \
+                                -Dsonar.qualitygate.wait=true
+                        '''
+                    }
                 }
             }
         }
