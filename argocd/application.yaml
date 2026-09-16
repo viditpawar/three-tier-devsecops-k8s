@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: snake-three-tier
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/viditpawar/three-tier-devsecops-k8s.git
+    targetRevision: main
+    path: kubernetes-manifests
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: three-tier
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
