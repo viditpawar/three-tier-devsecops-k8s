@@ -6,6 +6,10 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends docker.io docker-cli curl ca-certificates gnupg \
   && rm -rf /var/lib/apt/lists/*
 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && apt-get install -y --no-install-recommends nodejs \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN curl -fsSL -o /usr/local/bin/kubectl \
   "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
   && chmod +x /usr/local/bin/kubectl
