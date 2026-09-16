@@ -47,6 +47,8 @@ pipeline {
                     if ! kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
                         bash kind/setup-cluster.sh
                     fi
+
+                    docker network connect kind "$(hostname)" 2>/dev/null || true
                 '''
             }
         }
@@ -60,10 +62,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                    API_PORT=$(docker port ${CLUSTER_NAME}-control-plane 6443/tcp | head -1 | cut -d: -f2)
-                    kind get kubeconfig --name ${CLUSTER_NAME} \
-                        | sed -e "s/127.0.0.1.*/host.docker.internal:${API_PORT}/" \
-                        > ${KUBECONFIG}
+                    kind get kubeconfig --internal --name ${CLUSTER_NAME} > ${KUBECONFIG}
 
                     kubectl apply -f kubernetes-manifests/namespace.yaml
                     kubectl apply -f kubernetes-manifests/mongo/
