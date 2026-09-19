@@ -3,9 +3,12 @@ kind: Service
 metadata:
   name: backend
   namespace: three-tier
+  labels:
+    app: backend
 spec:
   selector:
     app: backend
   ports:
-    - port: 3001
+    - name: http
+      port: 3001
       targetPort: 3001

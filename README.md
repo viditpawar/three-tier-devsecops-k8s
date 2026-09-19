@@ -34,6 +34,9 @@ kubernetes-manifests/
   frontend/    Deployment, Service
   ingress.yaml
 docker-compose.yml    local three-tier stack without Kubernetes
+monitoring/
+  values.yaml, install.sh    kube-prometheus-stack via Helm
+  backend-servicemonitor.yaml, backend-dashboard.yaml
 ```
 
 ## Running locally with Docker Compose
@@ -67,3 +70,16 @@ Tear down with:
 ```bash
 kind delete cluster --name three-tier-devsecops
 ```
+
+## Monitoring (Prometheus + Grafana)
+
+The backend exposes Prometheus metrics at `/metrics` (default Node metrics plus
+`http_request_duration_seconds`). Requires `helm`.
+
+```bash
+bash monitoring/install.sh
+```
+
+Grafana is at http://grafana.localhost (admin / admin); the "Snake Backend"
+dashboard shows request rate, p95 latency, 5xx rate and pod resource usage.
+Rebuild and redeploy the backend image first so `/metrics` exists.
