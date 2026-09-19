@@ -1,0 +1,190 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  snake-backend.json: |
+    {
+        "uid": "snake-backend",
+        "title": "Snake Backend",
+        "schemaVersion": 39,
+        "version": 1,
+        "refresh": "15s",
+        "time": {
+            "from": "now-30m",
+            "to": "now"
+        },
+        "panels": [
+            {
+                "id": 1,
+                "type": "timeseries",
+                "title": "Request rate by route",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "reqps"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "sum by (route) (rate(http_request_duration_seconds_count{namespace=\"three-tier\"}[1m]))",
+                        "legendFormat": "{{route}}",
+                        "refId": "A"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "type": "timeseries",
+                "title": "p95 latency by route",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 0
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "histogram_quantile(0.95, sum by (le, route) (rate(http_request_duration_seconds_bucket{namespace=\"three-tier\"}[5m])))",
+                        "legendFormat": "{{route}}",
+                        "refId": "A"
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "type": "timeseries",
+                "title": "5xx rate",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 8
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "reqps"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "sum(rate(http_request_duration_seconds_count{namespace=\"three-tier\",status_code=~\"5..\"}[1m]))",
+                        "legendFormat": "5xx",
+                        "refId": "A"
+                    }
+                ]
+            },
+            {
+                "id": 4,
+                "type": "timeseries",
+                "title": "Pod CPU",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 8
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "short"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "sum by (pod) (rate(container_cpu_usage_seconds_total{namespace=\"three-tier\",container!=\"\"}[1m]))",
+                        "legendFormat": "{{pod}}",
+                        "refId": "A"
+                    }
+                ]
+            },
+            {
+                "id": 5,
+                "type": "timeseries",
+                "title": "Pod memory",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 16
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "bytes"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "sum by (pod) (container_memory_working_set_bytes{namespace=\"three-tier\",container!=\"\"})",
+                        "legendFormat": "{{pod}}",
+                        "refId": "A"
+                    }
+                ]
+            },
+            {
+                "id": 6,
+                "type": "timeseries",
+                "title": "Event loop lag",
+                "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 16
+                },
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "prometheus"
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "unit": "s"
+                    },
+                    "overrides": []
+                },
+                "targets": [
+                    {
+                        "expr": "nodejs_eventloop_lag_seconds{namespace=\"three-tier\"}",
+                        "legendFormat": "{{pod}}",
+                        "refId": "A"
+                    }
+                ]
+            }
+        ]
+    }
