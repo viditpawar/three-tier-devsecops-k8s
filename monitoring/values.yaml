@@ -6,6 +6,22 @@ grafana:
     ingressClassName: nginx
     hosts:
       - grafana.localhost
+  # First start runs DB migrations, which is slow on a laptop-sized kind
+  # cluster; default probes kill it mid-migration and it restart-loops.
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    failureThreshold: 10
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 10
   sidecar:
     dashboards:
       enabled: true
@@ -15,6 +31,7 @@ prometheus:
   prometheusSpec:
     # Pick up ServiceMonitors from any namespace/release, not just this chart's.
     serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
     retention: 2d
     resources:
       requests:

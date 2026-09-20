@@ -33,10 +33,11 @@ kubernetes-manifests/
   backend/     ConfigMap, Secret, Deployment, Service
   frontend/    Deployment, Service
   ingress.yaml
+  network-policies.yaml
 docker-compose.yml    local three-tier stack without Kubernetes
 monitoring/
   values.yaml, install.sh    kube-prometheus-stack via Helm
-  backend-servicemonitor.yaml, backend-dashboard.yaml
+  backend-servicemonitor.yaml, backend-dashboard.yaml, backend-alerts.yaml
 ```
 
 ## Running locally with Docker Compose
@@ -83,3 +84,18 @@ bash monitoring/install.sh
 Grafana is at http://grafana.localhost (admin / admin); the "Snake Backend"
 dashboard shows request rate, p95 latency, 5xx rate and pod resource usage.
 Rebuild and redeploy the backend image first so `/metrics` exists.
+
+`backend-alerts.yaml` defines alerts for backend down, >5% 5xx rate and p95
+latency >1s. Alertmanager is disabled, so they show in the Prometheus UI
+(Alerts tab) only.
+
+
+## Hardening
+
+- Pods run as non-root with `seccompProfile: RuntimeDefault`, no privilege
+  escalation, dropped capabilities, and no mounted service-account token
+  (backend also has a read-only root filesystem).
+- `kubernetes-manifests/network-policies.yaml` denies all ingress in the
+  `three-tier` namespace except ingress-nginx -> frontend -> backend -> mongo
+  and Prometheus -> backend.
+- The Jenkins pipeline runs `trivy config` against the manifests.
