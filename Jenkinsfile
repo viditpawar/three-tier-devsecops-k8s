@@ -66,6 +66,12 @@ pipeline {
             }
         }
 
+        stage('Trivy: Manifest Misconfig Scan') {
+            steps {
+                sh 'trivy config --severity HIGH,CRITICAL --exit-code 0 kubernetes-manifests'
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 sh "docker build -t ${BACKEND_IMAGE} application-code/backend"
@@ -116,6 +122,7 @@ pipeline {
                     kubectl apply -f kubernetes-manifests/backend/
                     kubectl apply -f kubernetes-manifests/frontend/
                     kubectl apply -f kubernetes-manifests/ingress.yaml
+                    kubectl apply -f kubernetes-manifests/network-policies.yaml
 
                     kubectl -n ${NAMESPACE} set image deployment/backend backend=${BACKEND_IMAGE}
                     kubectl -n ${NAMESPACE} set image deployment/frontend frontend=${FRONTEND_IMAGE}
