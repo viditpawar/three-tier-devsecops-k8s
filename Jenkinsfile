@@ -37,6 +37,7 @@ pipeline {
                             sonar-scanner \
                                 -Dsonar.projectKey=snake-backend \
                                 -Dsonar.sources=src \
+                                -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
                                 -Dsonar.host.url=${SONAR_HOST_URL} \
                                 -Dsonar.token=${SONAR_TOKEN} \
                                 -Dsonar.qualitygate.wait=true
